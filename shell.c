@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
 	char sep[] = " ";
 	char *result = NULL;
 	char command_argv[3][255] = {0};
-	char input[303] = {0};
+	char input[256] = {0};
 
 	while(true)
 	{
@@ -39,19 +39,19 @@ int main(int argc, char **argv) {
 		
 		// Capture command
 		printf("ssmannshell> ");
-		scanf("%[^\n]", input);
+		scanf("%255[^\n]%*c", input);
 		//printf("%s\n", input);
 
 		//parse the command line to commandName, sourceFileName, targetFileName 3 arguments
 
 		result = strtok(input, sep);
-		printf("%s", result);
+		//printf("%s", result);
 
 		while( result != NULL )
 		{
 			strcpy(command_argv[i],result);
 			result = strtok( NULL, sep );
-			printf("%s", result);
+			//printf("%s", result);
 			i++;
 		}
 
@@ -91,12 +91,57 @@ int main(int argc, char **argv) {
 
 void copy(char *source, char *destination)
 {
-	printf("Copying...\n");
+	printf("Copying %s to %s...\n", source, destination);
+
+	char currentChar = 0;
+	FILE *sourceHandle;
+	FILE *destinationHandle;
+
+	// Open the file
+	sourceHandle = fopen(source, "r");
+	destinationHandle = fopen(destination, "a");
+
+	// If we didn't get a valid handle back, an error occurred
+	if(sourceHandle == NULL)
+	{
+		perror("Error while opening the input file.\n");
+		return;
+	}
+
+	if(destinationHandle == NULL)
+	{
+		perror("Error while opening the output file.\n");
+		return;
+	}
+
+	// Read every character and print it to the screen
+	while((currentChar = fgetc(sourceHandle)) != EOF)
+	{
+		fprintf(destinationHandle, "%c", currentChar);
+	}
+
+	// Close the file cleanly
+	fclose(sourceHandle);
+	fclose(destinationHandle);
+
+	return;
 }
 
 void delete(char* filename)
 {
 	printf("Deleting...\n");
+
+	int result = remove(filename);
+
+	if(result != 0)
+	{
+		printf("Error deleting file: %s, result: %d\n", filename, result);
+	}
+	else
+	{
+		puts( "File successfully deleted" );
+	}
+	return;
 }
 
 void displayError(char* command)
@@ -136,7 +181,7 @@ bool isType(char* command)
 
 void type(char *filename)
 {
-	printf("Opening %s for output...", filename);
+	printf("Opening %s for reading...\n", filename);
 
 	char currentChar = 0;
 	FILE *handle;
