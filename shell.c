@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-#include <stdlib.h>
 
 void copy(char *source, char *destination);
 void delete(char* filename);
@@ -22,44 +21,60 @@ int main(int argc, char **argv) {
 	// TODO
 	printf("SMUSh Version 0.1.234\n");
 
-	char command[100] = {0};
+	char *command = NULL;
+	char *param1 = NULL;
+	char *param2 = NULL;
+	char sep[] = " ";
+	char *result = NULL;
+	char command_argv[3][255] = {0};
+	char input[303] = {0};
 
 	while(true)
 	{
+		int i = 0;
+		input[0] = '\0';
+		command_argv[0][0] = '\0';
+		command_argv[1][0] = '\0';
+		command_argv[2][0] = '\0';
+		
 		// Capture command
 		printf("ssmannshell> ");
-		scanf("%s", command);
+		scanf("%[^\n]", input);
+		//printf("%s\n", input);
+
+		//parse the command line to commandName, sourceFileName, targetFileName 3 arguments
+
+		result = strtok(input, sep);
+		printf("%s", result);
+
+		while( result != NULL )
+		{
+			strcpy(command_argv[i],result);
+			result = strtok( NULL, sep );
+			printf("%s", result);
+			i++;
+		}
+
+		command = command_argv[0];
+		param1 = command_argv[1];
+		param2 = command_argv[2];
 
 		if(isExit(command))
 		{
 			printf("Exiting... Thanks for using SMUSh - Scott's Shell.\n");
 			break;
 		}
-
-		// The command wasn't exit, go ahead and parse the arguments once
-		// for future use.
-		int count = 0;
-		char input[100] = {0};
-		char result[100][32];
-		strcpy(input, command);
-		count = split2(input, result);
-
-		int i = 0;
-		for (i=0; i<count; i++) {
-			printf("%s+", result[i]);
-		}
-
-		if (isCopy(result[0]))
+		else if (isCopy(command))
 		{
-			copy(result[1], result[2]);
+			copy(param1, param2);
 		}
-		else if (isDelete(result[0]))
+		else if (isDelete(command))
 		{
-			delete(result[1]);
+			delete(param1);
 		}
-		else if (isType(result[0]))
+		else if (isType(command))
 		{
-			type(result[1]);
+			type(param1);
 		}
 		else if (isExecutable(command))
 		{
@@ -72,27 +87,6 @@ int main(int argc, char **argv) {
 	}
 
 	return 0;
-}
-
-int split2(char* str, char results[256][32])
-{
-	//const char line[] = "2004/12/03 12:01:59;info1;info2;info3";
-	const char *ptr = str; //line
-	char field [ 32 ];
-	int n;
-	int i = 0;
-	while ( sscanf(ptr, "%31[^ ]%n", field, &n) == 1 )
-	{
-		printf("field = \"%s\"\n", field);
-		strcpy(results[i++], field);
-		ptr += n; /* advance the pointer by the number of characters read */
-		if ( *ptr != ' ' )
-		{
-			break; /* didn't find an expected delimiter, done? */
-		}
-		++ptr; /* skip the delimiter */
-	}
-	return i;
 }
 
 void copy(char *source, char *destination)
@@ -165,4 +159,6 @@ void type(char *filename)
 
 	// Close the file cleanly
 	fclose(handle);
+
+	return;
 }
