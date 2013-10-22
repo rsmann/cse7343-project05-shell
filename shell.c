@@ -1,10 +1,12 @@
 // Scott Mann - CSE 7343 - 10/20/2013
 // A simple Unix shell.
 
+// Includes
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
 
+// Function Prototypes
 void copy(char *source, char *destination);
 void delete(char* filename);
 void displayError(char* command);
@@ -16,52 +18,56 @@ bool isExit(char* command);
 bool isType(char* command);
 void type(char* filename);
 
-
+// Main processing loop for the shell
 int main(int argc, char **argv) {
-	// TODO
-	printf("SMUSh Version 0.1.234\n");
+	printf("SMUsh Version 0.1.234\n");
 
+	// Allocate outside of the loop for efficiency
 	char *command = NULL;
 	char *param1 = NULL;
 	char *param2 = NULL;
 	char sep[] = " ";
 	char *result = NULL;
-	char command_argv[3][255] = {0};
+	char part[3][255] = {0};
 	char input[256] = {0};
 
+	// Begin the command processing loop
 	while(true)
 	{
+		// Clear out the storage at the beginning of each loop
 		int i = 0;
 		input[0] = '\0';
-		command_argv[0][0] = '\0';
-		command_argv[1][0] = '\0';
-		command_argv[2][0] = '\0';
+		part[0][0] = '\0';
+		part[1][0] = '\0';
+		part[2][0] = '\0';
 		
-		// Capture command
-		printf("ssmannshell> ");
+		// Capture command line input
+		printf("SMUsh> ");
 		scanf("%255[^\n]%*c", input);
-		//printf("%s\n", input);
 
-		//parse the command line to commandName, sourceFileName, targetFileName 3 arguments
+		// parse the input into three separate arguments
 
+		// Pull the first token from the input
 		result = strtok(input, sep);
-		//printf("%s", result);
 
+		// Loop through remaining tokens until there are none left
 		while( result != NULL )
 		{
-			strcpy(command_argv[i],result);
+			// Copy the result into the argument array
+			strcpy(part[i],result);
 			result = strtok( NULL, sep );
-			//printf("%s", result);
 			i++;
 		}
 
-		command = command_argv[0];
-		param1 = command_argv[1];
-		param2 = command_argv[2];
+		// Transfer the parts into named storage
+		command = part[0];
+		param1 = part[1];
+		param2 = part[2];
 
+		// Evaluate the command types and pass the appropriate parameters
 		if(isExit(command))
 		{
-			printf("Exiting... Thanks for using SMUSh - Scott's Shell.\n");
+			printf("Exiting... Thanks for using SMUsh - Scott's Shell.\n");
 			break;
 		}
 		else if (isCopy(command))
@@ -89,6 +95,7 @@ int main(int argc, char **argv) {
 	return 0;
 }
 
+// Copies the source file to the destination file, byte by byte
 void copy(char *source, char *destination)
 {
 	printf("Copying %s to %s...\n", source, destination);
@@ -111,6 +118,7 @@ void copy(char *source, char *destination)
 	if(destinationHandle == NULL)
 	{
 		perror("Error while opening the output file.\n");
+		fclose(sourceHandle);
 		return;
 	}
 
@@ -127,12 +135,15 @@ void copy(char *source, char *destination)
 	return;
 }
 
+// Deletes the file if it exists
 void delete(char* filename)
 {
 	printf("Deleting...\n");
 
+	// Attempt the removal
 	int result = remove(filename);
 
+	// If there was a problem, notify the user
 	if(result != 0)
 	{
 		printf("Error deleting file: %s, result: %d\n", filename, result);
@@ -144,11 +155,13 @@ void delete(char* filename)
 	return;
 }
 
+// Display the erroneous command back to the user
 void displayError(char* command)
 {
 	printf("Command not found: %s\n", command);
 }
 
+// Execute the command passed in
 void execute(char* command)
 {
 	char args[1][1];
@@ -168,18 +181,24 @@ void execute(char* command)
 	}
 }
 
+// Is the command "copy"
 bool isCopy(char* command)
 {
 	return !strcmp(command, "copy");
 }
 
+// Is the command "delete"
 bool isDelete(char* command)
 {
 	return !strcmp(command, "delete");
 }
 
+// Is the command executable
 bool isExecutable(char* command)
 {
+	// Trying to see if I could get ls to work
+	if (!strcmp(command, "ls")) return true;
+
 	FILE* exists = fopen(command, "r");
 
 	if (exists != NULL)
@@ -190,16 +209,19 @@ bool isExecutable(char* command)
 	return false;
 }
 
+// Is the command "exit"
 bool isExit(char* command)
 {
 	return !strcmp(command, "exit");
 }
 
+// Is the command "type"
 bool isType(char* command)
 {
 	return !strcmp(command, "type");
 }
 
+// Output the file to the screen byte by byte
 void type(char *filename)
 {
 	printf("Opening %s for reading...\n", filename);
