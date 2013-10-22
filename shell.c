@@ -6,9 +6,13 @@
 #include <stdbool.h>
 #include <string.h>
 
-bool commandIsExit(char* command);
 void copy(char *filename1, char *filename2);
 void displayError(char* command);
+bool isCopy(char* command);
+bool isDelete(char* command);
+bool isExecute(char* command);
+bool isExit(char* command);
+bool isType(char* command);
 void type(char* command);
 
 int main(int argc, char **argv) {
@@ -23,14 +27,33 @@ int main(int argc, char **argv) {
 		printf("ssmannshell> ");
 		scanf("%s", command);
 
-		if(commandIsExit(command))
+		if(isExit(command))
 		{
-			printf("Exiting... Thanks for using Scott's Shell.\n");
+			printf("Exiting... Thanks for using SMUSh - Scott's Shell.\n");
 			break;
+		}
+		else if (isCopy(command))
+		{
+
+		}
+		else if (isDelete(command))
+		{
+
+		}
+		else if (isType(command))
+		{
+
 		}
 		else
 		{
-			displayError(command);
+			if (isExecute(command))
+			{
+
+			}
+			else
+			{
+				displayError(command);
+			}
 		}
 
 		// If command is type,
@@ -43,12 +66,6 @@ int main(int argc, char **argv) {
 	return 0;
 }
 
-
-bool commandIsExit(char* command)
-{
-	return !strcmp(command, "exit");
-}
-
 void copy(char *filename1, char *filename2)
 {
 
@@ -59,6 +76,31 @@ void displayError(char* command)
 	printf("Command not found: %s\n", command);
 }
 
+bool isCopy(char* command)
+{
+	return false;
+}
+
+bool isDelete(char* command)
+{
+	return false;
+}
+
+bool isExecute(char* command)
+{
+	return false;
+}
+
+bool isExit(char* command)
+{
+	return !strcmp(command, "exit");
+}
+
+bool isType(char* command)
+{
+	return false;
+}
+
 void type(char *command)
 {
 	// open the file
@@ -67,4 +109,3 @@ void type(char *command)
 	// Read the file
 	// Output the file
 }
-
