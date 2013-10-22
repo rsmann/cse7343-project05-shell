@@ -151,7 +151,21 @@ void displayError(char* command)
 
 void execute(char* command)
 {
-	printf("Executing...\n");
+	char args[1][1];
+	args[0][0] = '\0';
+
+	int pid = fork();
+
+	if (pid == 0)
+	{
+		printf("Executing...\n");
+		execvp(command, args);
+	}
+	else
+	{
+		wait(pid);
+		return;
+	}
 }
 
 bool isCopy(char* command)
@@ -166,6 +180,13 @@ bool isDelete(char* command)
 
 bool isExecutable(char* command)
 {
+	FILE* exists = fopen(command, "r");
+
+	if (exists != NULL)
+    {
+        fclose(exists);
+        return true;
+    }
 	return false;
 }
 
